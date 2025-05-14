@@ -102,7 +102,7 @@ const Protocol = () => {
         {[
           {
             title: "Hold Procedure",
-            icon: <Hold className="h-12 w-12 text-amber-500 mb-4" />,
+            icon: <PauseCircle className="h-12 w-12 text-amber-500 mb-4" />,
             description: "Use when there is an issue in hallways or common areas that requires students and staff to stay in their classrooms or designated areas.",
             steps: [
               "Clear the halls and return to your room",
@@ -112,7 +112,7 @@ const Protocol = () => {
           },
           {
             title: "Secure Procedure",
-            icon: <Secure className="h-12 w-12 text-blue-500 mb-4" />,
+            icon: <ShieldCheck className="h-12 w-12 text-blue-500 mb-4" />,
             description: "Used when there is a threat or hazard outside of the school building.",
             steps: [
               "Get inside the building",
@@ -123,7 +123,7 @@ const Protocol = () => {
           },
           {
             title: "Lockdown Procedure",
-            icon: <Lockdown className="h-12 w-12 text-red-600 mb-4" />,
+            icon: <Lock className="h-12 w-12 text-red-600 mb-4" />,
             description: "Used when there is a threat or hazard inside the school building.",
             steps: [
               "Lock classroom doors",
@@ -135,7 +135,7 @@ const Protocol = () => {
           },
           {
             title: "Evacuate Procedure",
-            icon: <Evacuate className="h-12 w-12 text-orange-500 mb-4" />,
+            icon: <LogOut className="h-12 w-12 text-orange-500 mb-4" />,
             description: "Used when there is a need to move students and staff from one location to another.",
             steps: [
               "Leave all items behind",
@@ -146,7 +146,7 @@ const Protocol = () => {
           },
           {
             title: "Shelter Procedure",
-            icon: <Shelter className="h-12 w-12 text-purple-600 mb-4" />,
+            icon: <Home className="h-12 w-12 text-purple-600 mb-4" />,
             description: "Used when specific protective actions are needed based on a threat or hazard.",
             steps: [
               "Use appropriate shelter strategy for the situation",
