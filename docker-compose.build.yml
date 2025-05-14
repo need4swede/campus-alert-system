@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # Set BUILD_MODE to either 'development' or 'production'
+        # This controls which build script is run (build:dev or build)
+        BUILD_MODE: ${BUILD_MODE:-production}
+    image: campus-alert-system:${BUILD_MODE:-production}
+    container_name: campus-alert-system-${BUILD_MODE:-production}
+    ports:
+      - "${PORT:-8080}:80"
+    environment:
+      # Pass environment variables to the container
+      - NODE_ENV=${BUILD_MODE:-production}
+    volumes:
+      # Mount environment files based on the build mode
+      - ./.env.${BUILD_MODE:-production}:/app/.env.${BUILD_MODE:-production}:ro
+    restart: unless-stopped
+
+# Usage:
+# For development:
+#   BUILD_MODE=development PORT=8282 docker-compose -f docker-compose.build.yml up --build
+# For production:
+#   BUILD_MODE=production PORT=80 docker-compose -f docker-compose.build.yml up --build
+# Or use default (production):
+#   docker-compose -f docker-compose.build.yml up --build
+
+
+## Usage:
+
+### Building Locally:
+
+# __Development Mode:__
+
+# ```bash
+# BUILD_MODE=development PORT=8080 docker-compose -f docker-compose.build.yml up --build
+# ```
+
+# __Production Mode:__
+
+# ```bash
+# BUILD_MODE=production PORT=80 docker-compose -f docker-compose.build.yml up --build
+# ```
+
+# ### Using Pre-built Images:
+
+# __Development Mode:__
+
+# ```bash
+# BUILD_MODE=development PORT=8080 docker-compose up
+# ```
+
+# __Production Mode:__
+
+# ```bash
+# BUILD_MODE=production PORT=80 docker-compose up
+# ```
+
+# The setup automatically handles the authentication differences between environments:
+
+# - Development: Uses local authentication with mock users
+# - Production: Uses Microsoft OAuth
+
+# Before deploying to production, make sure to update the `.env.production` file with your actual Microsoft OAuth credentials.

@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  app:
+    image: need4swede/react:${BUILD_MODE:-production}
+    container_name: campus-alert-system-${BUILD_MODE:-production}
+    ports:
+      - "${PORT:-8080}:80"
+    environment:
+      # Pass environment variables to the container
+      - NODE_ENV=${BUILD_MODE:-production}
+    volumes:
+      # Mount environment files based on the build mode
+      - ./.env.${BUILD_MODE:-production}:/app/.env.${BUILD_MODE:-production}:ro
+    restart: unless-stopped
+
+# Usage:
+# For development:
+#   BUILD_MODE=development PORT=8080 docker-compose up
+# For production:
+#   BUILD_MODE=production PORT=80 docker-compose up
+# Or use default (production):
+#   docker-compose up
+
+## Usage:
+
+### Building Locally:
+
+# __Development Mode:__
+
+# ```bash
+# BUILD_MODE=development PORT=8080 docker-compose -f docker-compose.build.yml up --build
+# ```
+
+# __Production Mode:__
+
+# ```bash
+# BUILD_MODE=production PORT=80 docker-compose -f docker-compose.build.yml up --build
+# ```
+
+# ### Using Pre-built Images:
+
+# __Development Mode:__
+
+# ```bash
+# BUILD_MODE=development PORT=8080 docker-compose up
+# ```
+
+# __Production Mode:__
+
+# ```bash
+# BUILD_MODE=production PORT=80 docker-compose up
+# ```
+
+# The setup automatically handles the authentication differences between environments:
+
+# - Development: Uses local authentication with mock users
+# - Production: Uses Microsoft OAuth
+
+# Before deploying to production, make sure to update the `.env.production` file with your actual Microsoft OAuth credentials.
