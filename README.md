@@ -60,6 +60,32 @@ This project is built with:
 - shadcn-ui
 - Tailwind CSS
 
+## Authentication System
+
+This project uses a dual authentication system:
+
+- **Development Mode**: Uses local authentication with mock users for easy testing
+- **Production Mode**: Integrates with Microsoft OAuth for secure authentication
+
+### Setting up Microsoft OAuth
+
+To set up Microsoft OAuth for production:
+
+1. Register your application in the [Azure Portal](https://portal.azure.com/)
+2. Create an App Registration and configure the redirect URI to match your production domain
+3. Update the `.env.production` file with your Microsoft OAuth credentials:
+   - `VITE_MS_CLIENT_ID`: Your Microsoft OAuth client ID
+   - `VITE_MS_TENANT_ID`: Your Microsoft OAuth tenant ID
+   - `VITE_MS_REDIRECT_URI`: Your OAuth callback URL (e.g., https://your-domain.com/auth/callback)
+
+### Development Authentication
+
+In development mode, you can use the following test accounts:
+
+- Regular User: `user@school.edu` / `password`
+- Admin User: `admin@school.edu` / `password`
+- Super Admin: `superadmin@school.edu` / `password`
+
 ## How can I deploy this project?
 
 Simply open [Lovable](https://lovable.dev/projects/9f6e389a-6b2e-4b9e-8b93-2af189af148d) and click on Share -> Publish.

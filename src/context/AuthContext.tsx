@@ -1,7 +1,11 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { User, UserRole } from '@/types';
+import { User } from '@/types';
 import { toast } from "@/components/ui/sonner";
+import { authService } from '@/services/auth';
+
+// Check if we're in development mode
+const isDevelopment = import.meta.env.MODE === 'development';
 
 interface AuthContextType {
   user: User | null;
@@ -22,64 +26,41 @@ export const useAuth = () => {
   return context;
 };
 
-// Mock user data (would come from API in production)
-const mockUsers: User[] = [
-  {
-    id: '1',
-    name: 'John Doe',
-    email: 'user@school.edu',
-    role: 'user',
-    avatar: 'https://i.pravatar.cc/150?u=user'
-  },
-  {
-    id: '2',
-    name: 'Jane Smith',
-    email: 'admin@school.edu',
-    role: 'admin',
-    avatar: 'https://i.pravatar.cc/150?u=admin'
-  },
-  {
-    id: '3',
-    name: 'Bob Johnson',
-    email: 'superadmin@school.edu',
-    role: 'super-admin',
-    avatar: 'https://i.pravatar.cc/150?u=superadmin'
-  }
-];
-
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  
+
   // Check if user is already logged in
   useEffect(() => {
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
+    const currentUser = authService.getCurrentUser();
+    if (currentUser) {
+      setUser(currentUser);
     }
   }, []);
 
   const login = async (email: string, password: string): Promise<void> => {
-    // Mock authentication - would be replaced with actual API call
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        const foundUser = mockUsers.find(u => u.email === email);
-        
-        if (foundUser) {
-          setUser(foundUser);
-          localStorage.setItem('user', JSON.stringify(foundUser));
-          toast.success(`Welcome, ${foundUser.name}`);
-          resolve();
-        } else {
-          toast.error('Invalid email or password');
-          reject(new Error('Invalid email or password'));
-        }
-      }, 1000);
-    });
+    try {
+      // In development mode, we use local auth with email/password
+      // In production mode, we redirect to Microsoft OAuth
+      if (isDevelopment) {
+        const user = await authService.login(email, password);
+        setUser(user);
+        authService.saveUser(user);
+        toast.success(`Welcome, ${user.name}`);
+      } else {
+        // For Microsoft OAuth, we don't need password
+        // This will redirect to Microsoft login page
+        await authService.login(email, '');
+        // This code won't be reached as the page will redirect
+      }
+    } catch (error) {
+      toast.error('Authentication failed');
+      throw error;
+    }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    await authService.logout();
     setUser(null);
-    localStorage.removeItem('user');
     toast.info('You have been logged out');
   };
 
