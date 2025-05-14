@@ -8,6 +8,7 @@ interface AlertContextType {
   alertHistory: Alert[];
   initiateAlert: (type: AlertType, user: User, note?: string) => void;
   resolveAlert: (user: User) => void;
+  changeAlertType: (type: AlertType, user: User) => void;
   canResolveAlert: (user: User) => boolean;
 }
 
@@ -94,6 +95,40 @@ export const AlertProvider = ({ children }: { children: React.ReactNode }) => {
     toast.success(`${resolvedAlert.type?.toUpperCase()} alert has been resolved by ${user.name}`);
   };
 
+  const changeAlertType = (newType: AlertType, user: User) => {
+    if (!currentAlert || !currentAlert.active) return;
+    
+    if (currentAlert.type === newType) {
+      toast.info(`Alert is already set to ${newType.toUpperCase()}`);
+      return;
+    }
+
+    // Create a changelog entry with the old alert as resolved
+    const resolvedAlert: Alert = {
+      ...currentAlert,
+      active: false,
+      resolvedBy: user,
+      resolvedAt: new Date()
+    };
+
+    // Create a new alert with the new type
+    const newAlert: Alert = {
+      id: crypto.randomUUID(),
+      type: newType,
+      initiatedBy: user,
+      timestamp: new Date(),
+      active: true,
+      note: `Escalated from ${currentAlert.type} alert`
+    };
+
+    setCurrentAlert(newAlert);
+    setAlertHistory(prev => [newAlert, ...prev.map(alert => 
+      alert.id === resolvedAlert.id ? resolvedAlert : alert
+    )]);
+    
+    toast.warning(`Alert type changed from ${currentAlert.type?.toUpperCase()} to ${newType.toUpperCase()} by ${user.name}`);
+  };
+
   const canResolveAlert = (user: User): boolean => {
     if (!currentAlert) return false;
     
@@ -111,6 +146,7 @@ export const AlertProvider = ({ children }: { children: React.ReactNode }) => {
         alertHistory,
         initiateAlert,
         resolveAlert,
+        changeAlertType,
         canResolveAlert
       }}
     >

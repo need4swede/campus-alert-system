@@ -8,9 +8,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getProtocolMessage } from '@/data/protocol-messages';
 import { PauseCircle, ShieldCheck, Lock, LogOut, Home } from 'lucide-react';
 import { AlertType } from '@/types';
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
 
 const Dashboard = () => {
-  const { currentAlert, initiateAlert, resolveAlert, canResolveAlert } = useAlert();
+  const { currentAlert, initiateAlert, resolveAlert, canResolveAlert, changeAlertType } = useAlert();
   const { user } = useAuth();
   const [note, setNote] = useState('');
   
@@ -31,6 +37,11 @@ const Dashboard = () => {
     resolveAlert(user);
   };
 
+  const handleChangeAlertType = (newType: AlertType) => {
+    if (!user || !currentAlert || !canResolveAlert(user)) return;
+    changeAlertType(newType, user);
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       {currentAlert && currentAlert.active ? (
@@ -49,14 +60,56 @@ const Dashboard = () => {
             </div>
           )}
           {canResolveAlert(user!) && (
-            <Button
-              variant="destructive"
-              size="lg"
-              onClick={handleResolveAlert}
-              className="mt-2"
-            >
-              Resolve Alert
-            </Button>
+            <div className="flex items-center justify-center gap-4">
+              <Button
+                variant="destructive"
+                size="lg"
+                onClick={handleResolveAlert}
+                className="mt-2"
+              >
+                Resolve Alert
+              </Button>
+              
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="lg" className="mt-2">
+                    Change Alert Type
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  {currentAlert.type !== 'hold' && (
+                    <DropdownMenuItem onClick={() => handleChangeAlertType('hold')}>
+                      <PauseCircle className="mr-2 h-4 w-4" />
+                      <span>Hold</span>
+                    </DropdownMenuItem>
+                  )}
+                  {currentAlert.type !== 'secure' && (
+                    <DropdownMenuItem onClick={() => handleChangeAlertType('secure')}>
+                      <ShieldCheck className="mr-2 h-4 w-4" />
+                      <span>Secure</span>
+                    </DropdownMenuItem>
+                  )}
+                  {currentAlert.type !== 'lockdown' && (
+                    <DropdownMenuItem onClick={() => handleChangeAlertType('lockdown')}>
+                      <Lock className="mr-2 h-4 w-4" />
+                      <span>Lockdown</span>
+                    </DropdownMenuItem>
+                  )}
+                  {currentAlert.type !== 'evacuate' && (
+                    <DropdownMenuItem onClick={() => handleChangeAlertType('evacuate')}>
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Evacuate</span>
+                    </DropdownMenuItem>
+                  )}
+                  {currentAlert.type !== 'shelter' && (
+                    <DropdownMenuItem onClick={() => handleChangeAlertType('shelter')}>
+                      <Home className="mr-2 h-4 w-4" />
+                      <span>Shelter</span>
+                    </DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           )}
         </div>
       ) : (
