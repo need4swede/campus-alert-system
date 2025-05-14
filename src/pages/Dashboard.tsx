@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getProtocolMessage } from '@/data/protocol-messages';
-import { Hold, Secure, Lockdown, Evacuate, Shelter } from 'lucide-react';
+import { PauseCircle, ShieldCheck, Lock, LogOut, Home } from 'lucide-react';
 import { AlertType } from '@/types';
 
 const Dashboard = () => {
@@ -77,7 +77,7 @@ const Dashboard = () => {
               className="emergency-button hold"
               onClick={() => handleInitiateAlert('hold')}
             >
-              <Hold className="h-8 w-8" />
+              <PauseCircle className="h-8 w-8" />
               <div>Hold</div>
             </button>
             
@@ -85,7 +85,7 @@ const Dashboard = () => {
               className="emergency-button secure"
               onClick={() => handleInitiateAlert('secure')}
             >
-              <Secure className="h-8 w-8" />
+              <ShieldCheck className="h-8 w-8" />
               <div>Secure</div>
             </button>
             
@@ -93,7 +93,7 @@ const Dashboard = () => {
               className="emergency-button lockdown"
               onClick={() => handleInitiateAlert('lockdown')}
             >
-              <Lockdown className="h-8 w-8" />
+              <Lock className="h-8 w-8" />
               <div>Lockdown</div>
             </button>
             
@@ -101,7 +101,7 @@ const Dashboard = () => {
               className="emergency-button evacuate"
               onClick={() => handleInitiateAlert('evacuate')}
             >
-              <Evacuate className="h-8 w-8" />
+              <LogOut className="h-8 w-8" />
               <div>Evacuate</div>
             </button>
             
@@ -109,7 +109,7 @@ const Dashboard = () => {
               className="emergency-button shelter"
               onClick={() => handleInitiateAlert('shelter')}
             >
-              <Shelter className="h-8 w-8" />
+              <Home className="h-8 w-8" />
               <div>Shelter</div>
             </button>
           </div>

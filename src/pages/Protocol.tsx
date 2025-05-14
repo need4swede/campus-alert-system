@@ -3,20 +3,20 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { protocolMessages } from '@/data/protocol-messages';
-import { Hold, Secure, Lockdown, Evacuate, Shelter } from 'lucide-react';
+import { PauseCircle, ShieldCheck, Lock, LogOut, Home } from 'lucide-react';
 
 const getIcon = (type: string) => {
   switch (type) {
     case 'hold':
-      return <Hold className="h-6 w-6 text-amber-500" />;
+      return <PauseCircle className="h-6 w-6 text-amber-500" />;
     case 'secure':
-      return <Secure className="h-6 w-6 text-blue-500" />;
+      return <ShieldCheck className="h-6 w-6 text-blue-500" />;
     case 'lockdown':
-      return <Lockdown className="h-6 w-6 text-red-600" />;
+      return <Lock className="h-6 w-6 text-red-600" />;
     case 'evacuate':
-      return <Evacuate className="h-6 w-6 text-orange-500" />;
+      return <LogOut className="h-6 w-6 text-orange-500" />;
     case 'shelter':
-      return <Shelter className="h-6 w-6 text-purple-600" />;
+      return <Home className="h-6 w-6 text-purple-600" />;
     default:
       return null;
   }
