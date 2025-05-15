@@ -136,7 +136,7 @@ const Login = () => {
               ) : (
                 <div className="text-center py-4">
                   <p className="text-gray-600 mb-4">
-                    Sign in with your Microsoft account to access the campus alert system.
+                    Sign in with your Microsoft account to access REACT.
                   </p>
                 </div>
               )}

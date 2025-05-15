@@ -1,6 +1,6 @@
-# Docker Setup for Campus Alert System
+# Docker Setup for the Rapid Emergency Alert Communications Tool
 
-This document provides instructions for deploying the Campus Alert System using Docker in both development and production environments.
+This document provides instructions for deploying REACT using Docker in both development and production environments.
 
 ## Docker Configuration
 

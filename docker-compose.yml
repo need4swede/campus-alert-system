@@ -3,7 +3,7 @@ version: '3.8'
 services:
   app:
     image: need4swede/react:${BUILD_MODE:-production}
-    container_name: campus-alert-system-${BUILD_MODE:-production}
+    container_name: react-${BUILD_MODE:-production}
     ports:
       - "${PORT:-8080}:80"
     environment:

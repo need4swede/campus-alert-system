@@ -9,8 +9,8 @@ services:
         # Set BUILD_MODE to either 'development' or 'production'
         # This controls which build script is run (build:dev or build)
         BUILD_MODE: ${BUILD_MODE:-production}
-    image: campus-alert-system:${BUILD_MODE:-production}
-    container_name: campus-alert-system-${BUILD_MODE:-production}
+    image: react:${BUILD_MODE:-production}
+    container_name: react-${BUILD_MODE:-production}
     ports:
       - "${PORT:-8080}:80"
     environment:
