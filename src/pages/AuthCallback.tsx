@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, Navigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, CheckCircle } from 'lucide-react';
+import { authService } from '@/services/auth';
+import { toast } from "@/components/ui/sonner";
 
 // Check if we're in development mode
 const isDevelopment = import.meta.env.MODE === 'development';
@@ -10,6 +12,7 @@ const AuthCallback = () => {
     const [searchParams] = useSearchParams();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [success, setSuccess] = useState(false);
 
     useEffect(() => {
         // If we're in development mode, this page shouldn't be accessed
@@ -27,24 +30,31 @@ const AuthCallback = () => {
             return;
         }
 
-        // In a real implementation, we would handle the OAuth callback here
-        // For now, we'll just redirect to the home page after a short delay
-        // to simulate processing
-        setTimeout(() => {
-            // Store a mock user in local storage
-            const mockUser = {
-                id: '1',
-                name: 'John Doe',
-                email: 'john.doe@school.edu',
-                role: 'user',
-                avatar: 'https://i.pravatar.cc/150?u=john'
-            };
+        // Process the OAuth callback
+        const processCallback = async () => {
+            try {
+                // Handle the OAuth callback using our auth service
+                const user = await authService.handleCallback(code, state);
 
-            localStorage.setItem('user', JSON.stringify(mockUser));
+                // Show success message
+                setSuccess(true);
+                setLoading(false);
 
-            // Redirect to home page
-            window.location.href = '/';
-        }, 2000);
+                // Show toast notification
+                toast.success(`Welcome, ${user.name}! Your account has been created/updated.`);
+
+                // Redirect to home page after a short delay
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 1500);
+            } catch (err) {
+                console.error('Authentication callback error:', err);
+                setError(err instanceof Error ? err.message : 'Authentication failed');
+                setLoading(false);
+            }
+        };
+
+        processCallback();
     }, [searchParams]);
 
     if (isDevelopment) {
@@ -63,11 +73,29 @@ const AuthCallback = () => {
                                     <p className="text-center text-gray-600">
                                         Completing authentication...
                                     </p>
+                                    <p className="text-center text-gray-500 text-sm mt-2">
+                                        Creating or updating your account...
+                                    </p>
                                 </>
+                            ) : success ? (
+                                <div className="text-green-500 flex flex-col items-center">
+                                    <CheckCircle className="h-12 w-12 mb-4" />
+                                    <p className="text-center font-medium">
+                                        Authentication successful!
+                                    </p>
+                                    <p className="text-center text-gray-600 mt-2">
+                                        Redirecting to dashboard...
+                                    </p>
+                                </div>
                             ) : error ? (
-                                <div className="text-red-500 flex items-center">
-                                    <AlertCircle className="h-6 w-6 mr-2" />
-                                    <span>{error}</span>
+                                <div className="text-red-500 flex flex-col items-center">
+                                    <AlertCircle className="h-12 w-12 mb-4" />
+                                    <p className="text-center font-medium">
+                                        Authentication failed
+                                    </p>
+                                    <p className="text-center text-gray-600 mt-2">
+                                        {error}
+                                    </p>
                                 </div>
                             ) : null}
                         </div>

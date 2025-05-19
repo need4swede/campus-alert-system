@@ -1,6 +1,5 @@
-
-import React, { useState, useEffect } from 'react';
-import { useNavigate, Navigate, useSearchParams } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate, Navigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,31 +14,13 @@ const isDevelopment = import.meta.env.MODE === 'development';
 const Login = () => {
   const { isAuthenticated, login } = useAuth();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Handle OAuth callback
-  useEffect(() => {
-    // Only in production mode
-    if (!isDevelopment) {
-      const code = searchParams.get('code');
-      const state = searchParams.get('state');
-
-      if (code && state) {
-        setLoading(true);
-
-        // In a real implementation, we would handle the OAuth callback here
-        // For now, we'll just redirect to the home page
-        // This is just a placeholder for the actual implementation
-        setTimeout(() => {
-          window.location.href = '/';
-        }, 1000);
-      }
-    }
-  }, [searchParams]);
+  // No need to handle OAuth callback here anymore
+  // It's now handled in the AuthCallback component
 
   // If already authenticated, redirect to home
   if (isAuthenticated) {
@@ -137,6 +118,9 @@ const Login = () => {
                 <div className="text-center py-4">
                   <p className="text-gray-600 mb-4">
                     Sign in with your Microsoft account to access REACT.
+                  </p>
+                  <p className="text-gray-500 text-sm">
+                    Your account will be automatically created or updated when you sign in.
                   </p>
                 </div>
               )}
