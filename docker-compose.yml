@@ -1,6 +1,7 @@
 version: '3.8'
 
 services:
+  # Web Frontend
   app:
     image: need4swede/react:${BUILD_MODE:-production}
     container_name: react-${BUILD_MODE:-production}
@@ -9,52 +10,62 @@ services:
     environment:
       # Pass environment variables to the container
       - NODE_ENV=${BUILD_MODE:-production}
+      # Database connection
+      - DATABASE_URL=postgresql://postgres:${DB_PASSWORD:-postgres}@db:5432/${ORGANIZATION_ID:-campus_alert}
+      # Organization settings
+      - ORGANIZATION_ID=${ORGANIZATION_ID:-campus_alert}
+      - ORGANIZATION_NAME=${ORGANIZATION_NAME:-Campus Alert System}
+      - DOMAIN=${DOMAIN:-example.edu}
+      - PRIMARY_COLOR=${PRIMARY_COLOR:-#007bff}
+      - SECONDARY_COLOR=${SECONDARY_COLOR:-#6c757d}
+      # Alert settings
+      - EVACUATION_LOCATION=${EVACUATION_LOCATION:-Main Parking Lot}
+      - SHELTER_HAZARD_TYPE=${SHELTER_HAZARD_TYPE:-Tornado}
+      # Authentication
+      - MS_CLIENT_ID=${MS_CLIENT_ID:-}
+      - MS_TENANT_ID=${MS_TENANT_ID:-}
+      - MS_REDIRECT_URI=${MS_REDIRECT_URI:-}
     volumes:
       # Mount environment files based on the build mode
       - ./.env.${BUILD_MODE:-production}:/app/.env.${BUILD_MODE:-production}:ro
+    depends_on:
+      - db
     restart: unless-stopped
 
-# Usage:
-# For development:
-#   BUILD_MODE=development PORT=8080 docker-compose up
-# For production:
-#   BUILD_MODE=production PORT=80 docker-compose up
-# Or use default (production):
-#   docker-compose up
+  # Database
+  db:
+    image: postgres:14-alpine
+    container_name: ${ORGANIZATION_ID:-campus_alert}-db
+    environment:
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-postgres}
+      - POSTGRES_DB=${ORGANIZATION_ID:-campus_alert}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./init-db:/docker-entrypoint-initdb.d
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    restart: unless-stopped
 
-## Usage:
+  # Database Admin Tool (pgAdmin)
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: ${ORGANIZATION_ID:-campus_alert}-pgadmin
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_EMAIL:-admin@example.com}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PASSWORD:-admin}
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    depends_on:
+      - db
+    restart: unless-stopped
 
-### Building Locally:
+volumes:
+  db-data:
 
-# __Development Mode:__
-
-# ```bash
-# BUILD_MODE=development PORT=8080 docker-compose -f docker-compose.build.yml up --build
-# ```
-
-# __Production Mode:__
-
-# ```bash
-# BUILD_MODE=production PORT=80 docker-compose -f docker-compose.build.yml up --build
-# ```
-
-# ### Using Pre-built Images:
-
-# __Development Mode:__
-
-# ```bash
-# BUILD_MODE=development PORT=8080 docker-compose up
-# ```
-
-# __Production Mode:__
-
-# ```bash
-# BUILD_MODE=production PORT=80 docker-compose up
-# ```
-
-# The setup automatically handles the authentication differences between environments:
-
-# - Development: Uses local authentication with mock users
-# - Production: Uses Microsoft OAuth
-
-# Before deploying to production, make sure to update the `.env.production` file with your actual Microsoft OAuth credentials.
+    # Usage:
+    # For development:
+    #   BUILD_MODE=development PORT=8080 DB_PASSWORD=your_secure_password ORGANIZATION_ID=your_org_id docker-compose up
+    # For production:
+    #   BUILD_MODE=production PORT=80 DB_PASSWORD=your_secure_password ORGANIZATION_ID=your_org_id docker-compose up
+    # Or use default (production):
+    #   DB_PASSWORD=your_secure_password docker-compose up
