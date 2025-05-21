@@ -37,16 +37,16 @@ const Navigation = () => {
               <AlertCircle className="h-8 w-8 text-primary mr-2" />
               <div>
                 <h1 className="text-xl font-semibold">
-                  <span className="acronym">R</span>apid
-                  <span className="acronym">E</span>mergency
-                  <span className="acronym">A</span>lert
-                  <span className="acronym">C</span>ommunication
+                  <span className="acronym">R</span>apid{" "}
+                  <span className="acronym">E</span>mergency{" "}
+                  <span className="acronym">A</span>lert{" "}
+                  <span className="acronym">C</span>ommunication{" "}
                   <span className="acronym">T</span>ool
                 </h1>
               </div>
             </Link>
           </div>
-          
+
           {currentAlert && currentAlert.active && (
             <div className={`status-banner ${currentAlert.type}`}>
               Active {currentAlert.type?.toUpperCase()} alert initiated by {currentAlert.initiatedBy.name}
@@ -67,7 +67,7 @@ const Navigation = () => {
                       Dashboard
                     </Link>
                   </Button>
-                  
+
                   <Button
                     variant={location.pathname === '/protocol' ? 'default' : 'ghost'}
                     size="sm"
@@ -78,7 +78,7 @@ const Navigation = () => {
                       Protocols
                     </Link>
                   </Button>
-                  
+
                   {isAdmin && (
                     <Button
                       variant={location.pathname === '/stats' ? 'default' : 'ghost'}
@@ -91,7 +91,7 @@ const Navigation = () => {
                       </Link>
                     </Button>
                   )}
-                  
+
                   {isSuperAdmin && (
                     <Button
                       variant={location.pathname === '/settings' ? 'default' : 'ghost'}
@@ -105,7 +105,7 @@ const Navigation = () => {
                     </Button>
                   )}
                 </div>
-                
+
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="relative rounded-full h-10 w-10 p-0">

@@ -65,28 +65,21 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+      <div className="max-w-lg w-full space-y-8">
         <div className="text-center">
           <div className="flex justify-center">
             <AlertCircle className="h-12 w-12 text-primary" />
           </div>
-          <h1 className="mt-4 text-2xl font-bold">
-            <span className="acronym">R</span>apid
-            <span className="acronym">E</span>mergency
-            <span className="acronym">A</span>lert
-            <span className="acronym">C</span>ommunication
+          <h1 className="mt-4 text-2xl font-bold whitespace-nowrap">
+            <span className="acronym">R</span>apid{" "}
+            <span className="acronym">E</span>mergency{" "}
+            <span className="acronym">A</span>lert{" "}
+            <span className="acronym">C</span>ommunication{" "}
             <span className="acronym">T</span>ool
           </h1>
-          <p className="mt-2 text-gray-600">Sign in to your account</p>
         </div>
 
         <Card>
-          <CardHeader>
-            <CardTitle>Sign In</CardTitle>
-            <CardDescription>
-              Enter your email and password to access the emergency alert system.
-            </CardDescription>
-          </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               {isDevelopment ? (
@@ -117,10 +110,10 @@ const Login = () => {
               ) : (
                 <div className="text-center py-4">
                   <p className="text-gray-600 mb-4">
-                    Sign in with your Microsoft account to access REACT.
+                    Authentication Required
                   </p>
                   <p className="text-gray-500 text-sm">
-                    Your account will be automatically created or updated when you sign in.
+                    Please sign-in to access the REACT Portal
                   </p>
                 </div>
               )}
@@ -176,9 +169,7 @@ const Login = () => {
         </Card>
 
         <p className="text-center text-sm text-gray-500">
-          {isDevelopment
-            ? "Note: In production, this will be replaced with Microsoft OAuth authentication."
-            : "This application uses Microsoft OAuth for secure authentication."}
+          © REACT {new Date().getFullYear()}. All rights reserved.
         </p>
       </div>
     </div>
