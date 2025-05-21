@@ -28,7 +28,7 @@ PKCE (pronounced "pixy") is an extension to the OAuth 2.0 Authorization Code Flo
 You've already configured your application correctly in Microsoft Entra ID:
 
 1. Added a SPA platform to your app registration
-2. Set the redirect URI as `http://localhost:8181`
+2. Set the redirect URI as `http://localhost:8181/auth/callback`
 
 This configuration allows your application to use the Authorization Code Flow with PKCE.
 

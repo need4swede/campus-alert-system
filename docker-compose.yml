@@ -30,6 +30,30 @@ services:
       # Mount environment files based on the build mode
       - ./.env.${BUILD_MODE:-production}:/app/.env.${BUILD_MODE:-production}:ro
     depends_on:
+      - backend
+      - db
+    restart: unless-stopped
+
+  # Backend API Server
+  backend:
+    image: node:20-alpine
+    container_name: ${ORGANIZATION_ID:-campus_alert}-backend
+    working_dir: /app
+    volumes:
+      - ./:/app
+    command: >
+      sh -c "npm install && npm run server"
+    environment:
+      - NODE_ENV=${BUILD_MODE:-production}
+      - PORT=3000
+      - DATABASE_URL=postgresql://postgres:${DB_PASSWORD:-postgres}@db:5432/${ORGANIZATION_ID:-campus_alert}
+      - MS_CLIENT_ID=${MS_CLIENT_ID:-}
+      - MS_TENANT_ID=${MS_TENANT_ID:-}
+      - MS_CLIENT_SECRET=${MS_CLIENT_SECRET:-}
+      - MS_REDIRECT_URI=${MS_REDIRECT_URI:-}
+    ports:
+      - "5350:3000"
+    depends_on:
       - db
     restart: unless-stopped
 

@@ -8,6 +8,7 @@ import { AuthProvider } from "./context/AuthContext";
 import { AlertProvider } from "./context/AlertContext";
 import Navigation from "./components/Navigation";
 import ProtectedRoute from "./components/ProtectedRoute";
+import OAuthHandler from "./components/OAuthHandler";
 import Dashboard from "./pages/Dashboard";
 import Protocol from "./pages/Protocol";
 import Statistics from "./pages/Statistics";
@@ -33,9 +34,11 @@ const App = () => (
                   <Route
                     path="/"
                     element={
-                      <ProtectedRoute>
-                        <Dashboard />
-                      </ProtectedRoute>
+                      <OAuthHandler>
+                        <ProtectedRoute>
+                          <Dashboard />
+                        </ProtectedRoute>
+                      </OAuthHandler>
                     }
                   />
                   <Route
