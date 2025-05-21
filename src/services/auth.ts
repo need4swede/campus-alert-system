@@ -40,7 +40,6 @@ interface AuthService {
     // Additional properties for MS OAuth
     clientId?: string;
     tenantId?: string;
-    clientSecret?: string;
     redirectUri?: string;
     authority?: () => string;
     endpoints?: {
@@ -112,9 +111,6 @@ const msOAuth: AuthService = {
 
     // Microsoft OAuth tenant ID (would be set in environment variables)
     tenantId: import.meta.env.VITE_MS_TENANT_ID || '',
-
-    // Microsoft OAuth client secret (would be set in environment variables)
-    clientSecret: import.meta.env.VITE_MS_CLIENT_SECRET || '',
 
     // Microsoft OAuth redirect URI (would be set in environment variables)
     redirectUri: import.meta.env.VITE_MS_REDIRECT_URI || `${window.location.origin}/auth/callback`,

@@ -34,7 +34,8 @@ This configuration allows your application to use the Authorization Code Flow wi
 
 ## Additional Notes
 
-- The client secret is no longer needed in the client-side code since PKCE provides the necessary security
+- **IMPORTANT**: Client secrets should NOT be used with SPAs. They are only for confidential clients (like server-side applications).
+- PKCE provides the necessary security for SPAs without requiring a client secret
 - No server-side component is required for authentication
 - This approach follows the latest security best practices for SPAs
 - Make sure your redirect URI in Entra ID exactly matches the one in your application (including protocol, domain, port, and path)
