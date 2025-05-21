@@ -48,6 +48,11 @@ interface AuthService {
         token: string | (() => string);
         graphUserInfo: string;
     };
+
+    // PKCE methods for secure authentication
+    generateCodeVerifier?: () => string;
+    generateCodeChallenge?: (verifier: string) => Promise<string>;
+
     exchangeCodeForToken?: (code: string) => Promise<{
         access_token: string;
         id_token: string;
@@ -132,31 +137,71 @@ const msOAuth: AuthService = {
         graphUserInfo: 'https://graph.microsoft.com/v1.0/me'
     },
 
-    // Start the login process by redirecting to Microsoft OAuth
+    // Start the login process by redirecting to Microsoft OAuth with PKCE
     login: async (): Promise<never> => {
         // Generate a random state to prevent CSRF
         const state = Math.random().toString(36).substring(2, 15);
         localStorage.setItem('oauth_state', state);
 
+        // Generate PKCE code verifier and challenge
+        const codeVerifier = msOAuth.generateCodeVerifier();
+        const codeChallenge = await msOAuth.generateCodeChallenge(codeVerifier);
+
+        // Store the code verifier in local storage to use during token exchange
+        localStorage.setItem('pkce_code_verifier', codeVerifier);
+
         // Log OAuth configuration for debugging
         console.log('OAuth login configuration:', {
             clientId: msOAuth.clientId,
             tenantId: msOAuth.tenantId,
-            redirectUri: msOAuth.redirectUri
+            redirectUri: msOAuth.redirectUri,
+            pkceEnabled: true
         });
 
+        // Build the authorization URL with PKCE parameters
+        const authUrl = `https://login.microsoftonline.com/${msOAuth.tenantId}/oauth2/v2.0/authorize?` +
+            `client_id=${msOAuth.clientId}` +
+            `&response_type=code` +
+            `&redirect_uri=${encodeURIComponent(msOAuth.redirectUri)}` +
+            `&response_mode=query` +
+            `&scope=${encodeURIComponent('openid profile email User.Read')}` +
+            `&state=${state}` +
+            `&code_challenge=${codeChallenge}` +
+            `&code_challenge_method=S256`;
+
         // Redirect to Microsoft OAuth login page
-        window.location.href = msOAuth.endpoints.authorize(
-            msOAuth.clientId,
-            msOAuth.redirectUri,
-            state
-        );
+        window.location.href = authUrl;
 
         // This promise will never resolve as we're redirecting
         return new Promise<never>(() => { });
     },
 
-    // Exchange authorization code for access token
+    // Generate a code verifier and challenge for PKCE
+    generateCodeVerifier: (): string => {
+        // Generate a random string of 43-128 characters (we'll use 64)
+        const array = new Uint8Array(64);
+        window.crypto.getRandomValues(array);
+
+        // Convert to base64url format (base64 without padding, and with - instead of + and _ instead of /)
+        return btoa(String.fromCharCode.apply(null, [...array]))
+            .replace(/\+/g, '-')
+            .replace(/\//g, '_')
+            .replace(/=+$/, '')
+            .substring(0, 64); // Ensure it's not too long
+    },
+
+    // Generate a code challenge from the verifier
+    generateCodeChallenge: async (verifier: string): Promise<string> => {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(verifier);
+        const digest = await window.crypto.subtle.digest('SHA-256', data);
+        return btoa(String.fromCharCode(...new Uint8Array(digest)))
+            .replace(/\+/g, '-')
+            .replace(/\//g, '_')
+            .replace(/=+$/, '');
+    },
+
+    // Exchange authorization code for access token using PKCE
     exchangeCodeForToken: async (code: string): Promise<{
         access_token: string;
         id_token: string;
@@ -168,12 +213,20 @@ const msOAuth: AuthService = {
             const tokenEndpoint = msOAuth.endpoints.token instanceof Function
                 ? msOAuth.endpoints.token()
                 : msOAuth.endpoints.token;
+
+            // Get the code verifier from local storage
+            const codeVerifier = localStorage.getItem('pkce_code_verifier');
+            if (!codeVerifier) {
+                throw new Error('Code verifier not found');
+            }
+
+            // Exchange the code for a token using PKCE
             const params = new URLSearchParams({
                 client_id: msOAuth.clientId,
-                client_secret: msOAuth.clientSecret,
+                grant_type: 'authorization_code',
                 code: code,
                 redirect_uri: msOAuth.redirectUri,
-                grant_type: 'authorization_code'
+                code_verifier: codeVerifier
             });
 
             const response = await fetch(tokenEndpoint, {
@@ -188,6 +241,9 @@ const msOAuth: AuthService = {
                 const errorData = await response.json();
                 throw new Error(`Token exchange failed: ${errorData.error_description || response.statusText}`);
             }
+
+            // Clear the code verifier from local storage
+            localStorage.removeItem('pkce_code_verifier');
 
             return await response.json();
         } catch (error) {
