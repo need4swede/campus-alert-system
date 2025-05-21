@@ -45,7 +45,7 @@ interface AuthService {
     authority?: () => string;
     endpoints?: {
         authorize: (clientId: string, redirectUri: string, state: string) => string;
-        token: string;
+        token: string | (() => string);
         graphUserInfo: string;
     };
     exchangeCodeForToken?: (code: string) => Promise<{
@@ -115,16 +115,20 @@ const msOAuth: AuthService = {
     redirectUri: import.meta.env.VITE_MS_REDIRECT_URI || `${window.location.origin}/auth/callback`,
 
     // Microsoft OAuth authority
-    authority: function () {
-        return `https://login.microsoftonline.com/${this.tenantId}`;
+    authority: () => {
+        return `https://login.microsoftonline.com/${msOAuth.tenantId}`;
     },
 
     // Microsoft OAuth endpoints
     endpoints: {
-        authorize: function (clientId: string, redirectUri: string, state: string) {
-            return `https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=${clientId}&response_type=code&redirect_uri=${encodeURIComponent(redirectUri)}&response_mode=query&scope=openid%20profile%20email%20User.Read&state=${state}`;
+        authorize: (clientId: string, redirectUri: string, state: string) => {
+            console.log('OAuth authorize with tenantId:', msOAuth.tenantId);
+            return `https://login.microsoftonline.com/${msOAuth.tenantId}/oauth2/v2.0/authorize?client_id=${clientId}&response_type=code&redirect_uri=${encodeURIComponent(redirectUri)}&response_mode=query&scope=openid%20profile%20email%20User.Read&state=${state}`;
         },
-        token: 'https://login.microsoftonline.com/common/oauth2/v2.0/token',
+        token: () => {
+            console.log('OAuth token with tenantId:', msOAuth.tenantId);
+            return `https://login.microsoftonline.com/${msOAuth.tenantId}/oauth2/v2.0/token`;
+        },
         graphUserInfo: 'https://graph.microsoft.com/v1.0/me'
     },
 
@@ -133,6 +137,13 @@ const msOAuth: AuthService = {
         // Generate a random state to prevent CSRF
         const state = Math.random().toString(36).substring(2, 15);
         localStorage.setItem('oauth_state', state);
+
+        // Log OAuth configuration for debugging
+        console.log('OAuth login configuration:', {
+            clientId: msOAuth.clientId,
+            tenantId: msOAuth.tenantId,
+            redirectUri: msOAuth.redirectUri
+        });
 
         // Redirect to Microsoft OAuth login page
         window.location.href = msOAuth.endpoints.authorize(
@@ -154,7 +165,9 @@ const msOAuth: AuthService = {
         console.log('Exchanging code for token...');
 
         try {
-            const tokenEndpoint = 'https://login.microsoftonline.com/common/oauth2/v2.0/token';
+            const tokenEndpoint = msOAuth.endpoints.token instanceof Function
+                ? msOAuth.endpoints.token()
+                : msOAuth.endpoints.token;
             const params = new URLSearchParams({
                 client_id: msOAuth.clientId,
                 client_secret: msOAuth.clientSecret,
@@ -292,7 +305,7 @@ const msOAuth: AuthService = {
         localStorage.removeItem('user');
 
         // In a real implementation, we would also redirect to the Microsoft logout endpoint
-        // window.location.href = `https://login.microsoftonline.com/common/oauth2/v2.0/logout?post_logout_redirect_uri=${encodeURIComponent(window.location.origin)}`;
+        // window.location.href = `https://login.microsoftonline.com/${msOAuth.tenantId}/oauth2/v2.0/logout?post_logout_redirect_uri=${encodeURIComponent(window.location.origin)}`;
 
         return Promise.resolve();
     },
