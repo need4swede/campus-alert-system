@@ -1,0 +1,44 @@
+- This is a React application built with Vite, using TypeScript and Docker for containerization.
+
+- The application has two modes: development and production.
+
+- The application can be run in two ways:
+
+  - Using npm scripts for local development
+  - Using Docker for both development and production environments
+
+- For local development with npm:
+
+  - The command `npm run dev` will start the Vite development server on port 8181 (as specified in vite.config.ts)
+  - The command `npm run build` will build the application for production
+  - The command `npm run build:dev` will build the application for development
+  - The command `npm run preview` will preview the built application
+
+- For Docker:
+
+  - There are two Docker Compose files:
+
+    - `docker-compose.build.yml`: For building the image locally
+    - `docker-compose.yml`: For pulling the pre-built image from 'need4swede/react'
+
+  - The application can be run in development or production mode by setting the `BUILD_MODE` environment variable
+
+  - The application includes a PostgreSQL database and pgAdmin for database management
+
+- Ports used:
+
+  - Web application: 8080 (default, configurable via PORT environment variable)
+  - PostgreSQL database: 5432 (default, configurable via DB_PORT environment variable)
+  - pgAdmin: 5050 (default, configurable via PGADMIN_PORT environment variable)
+  - Vite development server: 8181 (when running locally with npm)
+
+- Environment variables:
+
+  - `BUILD_MODE`: Set to either 'development' or 'production' (default: 'production')
+  - `PORT`: The port to expose the web application on (default: 8080)
+  - `DB_PASSWORD`: Password for the PostgreSQL database (default: postgres)
+  - `ORGANIZATION_ID`: ID of the organization (default: campus_alert)
+  - `DB_PORT`: Port to expose the PostgreSQL database (default: 5432)
+  - `PGADMIN_EMAIL`: Email for pgAdmin login (default: admin@example.com)
+  - `PGADMIN_PASSWORD`: Password for pgAdmin login (default: admin)
+  - `PGADMIN_PORT`: Port to expose pgAdmin (default: 5050)

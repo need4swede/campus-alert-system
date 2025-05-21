@@ -40,6 +40,7 @@ interface AuthService {
     // Additional properties for MS OAuth
     clientId?: string;
     tenantId?: string;
+    clientSecret?: string;
     redirectUri?: string;
     authority?: () => string;
     endpoints?: {
@@ -107,6 +108,9 @@ const msOAuth: AuthService = {
     // Microsoft OAuth tenant ID (would be set in environment variables)
     tenantId: import.meta.env.VITE_MS_TENANT_ID || '',
 
+    // Microsoft OAuth client secret (would be set in environment variables)
+    clientSecret: import.meta.env.VITE_MS_CLIENT_SECRET || '',
+
     // Microsoft OAuth redirect URI (would be set in environment variables)
     redirectUri: import.meta.env.VITE_MS_REDIRECT_URI || `${window.location.origin}/auth/callback`,
 
@@ -147,20 +151,47 @@ const msOAuth: AuthService = {
         id_token: string;
         refresh_token: string;
     }> => {
-        // In a real implementation, we would make an actual API call
-        // For now, we'll simulate the token exchange
         console.log('Exchanging code for token...');
 
-        // Simulate token exchange delay
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                resolve({
+        try {
+            const tokenEndpoint = 'https://login.microsoftonline.com/common/oauth2/v2.0/token';
+            const params = new URLSearchParams({
+                client_id: msOAuth.clientId,
+                client_secret: msOAuth.clientSecret,
+                code: code,
+                redirect_uri: msOAuth.redirectUri,
+                grant_type: 'authorization_code'
+            });
+
+            const response = await fetch(tokenEndpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: params
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(`Token exchange failed: ${errorData.error_description || response.statusText}`);
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Error exchanging code for token:', error);
+
+            // For development/testing purposes, return mock tokens if the real API call fails
+            if (isDevelopment) {
+                console.warn('Falling back to mock tokens for development');
+                return {
                     access_token: `mock_access_token_${Date.now()}`,
                     id_token: `mock_id_token_${Date.now()}`,
                     refresh_token: `mock_refresh_token_${Date.now()}`
-                });
-            }, 500);
-        });
+                };
+            }
+
+            throw error;
+        }
     },
 
     // Get user info from Microsoft Graph API
@@ -170,13 +201,29 @@ const msOAuth: AuthService = {
         mail: string;
         userPrincipalName: string;
     }> => {
-        // In a real implementation, we would make an actual API call to Microsoft Graph
-        // For now, we'll simulate the API response
         console.log('Getting user info from Microsoft Graph...');
 
-        // Simulate API call delay
-        return new Promise((resolve) => {
-            setTimeout(() => {
+        try {
+            const response = await fetch('https://graph.microsoft.com/v1.0/me', {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(`Graph API call failed: ${errorData.error?.message || response.statusText}`);
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Error getting user info from Microsoft Graph:', error);
+
+            // For development/testing purposes, return mock user info if the real API call fails
+            if (isDevelopment) {
+                console.warn('Falling back to mock user info for development');
+
                 // Generate a random email domain to simulate different organizations
                 const domains = ['school.edu', 'university.edu', 'college.edu'];
                 const randomDomain = domains[Math.floor(Math.random() * domains.length)];
@@ -191,14 +238,16 @@ const msOAuth: AuthService = {
                 // Generate a random email
                 const email = `${randomFirstName.toLowerCase()}.${randomLastName.toLowerCase()}@${randomDomain}`;
 
-                resolve({
+                return {
                     id: `ms-user-${Date.now()}`,
                     displayName: randomName,
                     mail: email,
                     userPrincipalName: email
-                });
-            }, 500);
-        });
+                };
+            }
+
+            throw error;
+        }
     },
 
     // Handle the OAuth callback
