@@ -13,21 +13,12 @@ const OAuthHandler = ({ children }: { children: React.ReactNode }) => {
     const [success, setSuccess] = useState(false);
 
     useEffect(() => {
-        console.log('OAuthHandler mounted, checking for OAuth callback parameters');
-        console.log('Current location:', location.pathname, location.search);
-
         // Check if we have OAuth callback parameters in the URL
         const searchParams = new URLSearchParams(location.search);
         const code = searchParams.get('code');
         const state = searchParams.get('state');
 
         if (code && state) {
-            console.log('OAuth callback parameters detected in root path');
-            console.log('OAuth callback parameters:', {
-                code: code ? `${code.substring(0, 10)}...` : null,
-                state
-            });
-
             // Clear the URL parameters immediately to prevent re-processing on page refresh
             window.history.replaceState({}, document.title, '/');
 
@@ -35,12 +26,9 @@ const OAuthHandler = ({ children }: { children: React.ReactNode }) => {
 
             // Process the OAuth callback
             const processCallback = async () => {
-                console.log('Processing OAuth callback...');
                 try {
                     // Handle the OAuth callback using our auth service
-                    console.log('Calling authService.handleCallback...');
                     const user = await authService.handleCallback(code, state);
-                    console.log('OAuth callback successful, user:', user);
 
                     // Show success message
                     setSuccess(true);
@@ -49,8 +37,7 @@ const OAuthHandler = ({ children }: { children: React.ReactNode }) => {
                     // Show toast notification
                     toast.success(`Welcome, ${user.name}! Your account has been created/updated.`);
 
-                    // Clear the URL parameters and redirect to home
-                    console.log('OAuth successful, redirecting to home page');
+                    // Redirect to home page
                     navigate('/', { replace: true });
                 } catch (err) {
                     console.error('Authentication callback error:', err);

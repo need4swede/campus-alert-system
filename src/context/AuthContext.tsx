@@ -33,12 +33,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const currentUser = authService.getCurrentUser();
     if (currentUser) {
-      console.log('Found existing user in localStorage:', currentUser);
-      console.log('User role:', currentUser.role);
       setUser(currentUser);
-    } else {
-      console.log('No user found in localStorage');
-      console.log('localStorage content:', localStorage.getItem('user'));
     }
   }, []);
 

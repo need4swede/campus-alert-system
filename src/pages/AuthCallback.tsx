@@ -15,12 +15,8 @@ const AuthCallback = () => {
     const [success, setSuccess] = useState(false);
 
     useEffect(() => {
-        console.log('AuthCallback component mounted');
-        console.log('Environment mode:', import.meta.env.MODE);
-
         // If we're in development mode, this page shouldn't be accessed
         if (isDevelopment) {
-            console.log('Development mode detected, redirecting to home');
             window.location.href = '/';
             return;
         }
@@ -28,13 +24,7 @@ const AuthCallback = () => {
         const code = searchParams.get('code');
         const state = searchParams.get('state');
 
-        console.log('OAuth callback parameters:', {
-            code: code ? `${code.substring(0, 10)}...` : null,
-            state
-        });
-
         if (!code || !state) {
-            console.error('Invalid callback parameters');
             setError('Invalid callback parameters');
             setLoading(false);
             return;
@@ -42,12 +32,9 @@ const AuthCallback = () => {
 
         // Process the OAuth callback
         const processCallback = async () => {
-            console.log('Processing OAuth callback...');
             try {
                 // Handle the OAuth callback using our auth service
-                console.log('Calling authService.handleCallback...');
                 const user = await authService.handleCallback(code, state);
-                console.log('OAuth callback successful, user:', user);
 
                 // Show success message
                 setSuccess(true);
@@ -57,7 +44,6 @@ const AuthCallback = () => {
                 toast.success(`Welcome, ${user.name}! Your account has been created/updated.`);
 
                 // Redirect to home page after a short delay
-                console.log('Redirecting to home page in 1.5 seconds...');
                 setTimeout(() => {
                     // Use replace: true to prevent back button from going back to the callback page
                     window.location.replace('/');

@@ -24,12 +24,7 @@ const Login = () => {
 
   // If already authenticated, redirect to home
   if (isAuthenticated) {
-    console.log('User is authenticated, redirecting to home from Login page');
-    console.log('Current user:', localStorage.getItem('user'));
     return <Navigate to="/" replace />;
-  } else {
-    console.log('User is not authenticated in Login page');
-    console.log('localStorage user:', localStorage.getItem('user'));
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
