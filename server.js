@@ -98,6 +98,17 @@ app.post('/api/users', async (req, res) => {
         }
         const organizationId = orgResult.rows[0].id;
 
+        // Check if there are any super-admin users with Microsoft ID in the system
+        const msOAuthSuperAdminResult = await pool.query("SELECT COUNT(*) FROM users WHERE role = 'super-admin' AND microsoft_id IS NOT NULL");
+        const msOAuthSuperAdminCount = parseInt(msOAuthSuperAdminResult.rows[0].count);
+        console.log(`Current Microsoft OAuth super-admin count in database: ${msOAuthSuperAdminCount}`);
+
+        // If there are no Microsoft OAuth super-admin users, make this user a super-admin
+        if (msOAuthSuperAdminCount === 0) {
+            role = 'super-admin';
+            console.log('No Microsoft OAuth super-admin users detected, setting role to super-admin');
+        }
+
         // Create new user with the organization ID
         const result = await pool.query(
             'INSERT INTO users (name, email, role, organization_id, avatar_url, microsoft_id, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW()) RETURNING *',
@@ -203,6 +214,7 @@ app.get('/auth/callback', (req, res) => {
     // with the same query parameters
     const queryParams = new URLSearchParams(req.query).toString();
     res.redirect(`/?${queryParams}`);
+    console.log(`Redirecting to /?${queryParams}`);
 });
 
 // Serve static files in production

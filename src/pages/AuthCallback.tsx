@@ -20,8 +20,8 @@ const AuthCallback = () => {
 
         // If we're in development mode, this page shouldn't be accessed
         if (isDevelopment) {
-            console.log('Development mode detected, redirecting to login');
-            window.location.href = '/login';
+            console.log('Development mode detected, redirecting to home');
+            window.location.href = '/';
             return;
         }
 
@@ -59,7 +59,8 @@ const AuthCallback = () => {
                 // Redirect to home page after a short delay
                 console.log('Redirecting to home page in 1.5 seconds...');
                 setTimeout(() => {
-                    window.location.href = '/';
+                    // Use replace: true to prevent back button from going back to the callback page
+                    window.location.replace('/');
                 }, 1500);
             } catch (err) {
                 console.error('Authentication callback error:', err);
@@ -72,7 +73,7 @@ const AuthCallback = () => {
     }, [searchParams]);
 
     if (isDevelopment) {
-        return <Navigate to="/login" />;
+        return <Navigate to="/" />;
     }
 
     return (

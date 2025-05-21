@@ -14,11 +14,22 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   requireAdmin = false,
   requireSuperAdmin = false,
 }) => {
-  const { isAuthenticated, isAdmin, isSuperAdmin } = useAuth();
+  const { isAuthenticated, isAdmin, isSuperAdmin, user } = useAuth();
   const location = useLocation();
+
+  console.log('ProtectedRoute: Checking authentication', {
+    isAuthenticated,
+    isAdmin,
+    isSuperAdmin,
+    user,
+    path: location.pathname,
+    requireAdmin,
+    requireSuperAdmin
+  });
 
   if (!isAuthenticated) {
     // Redirect to login if not authenticated
+    console.log('User not authenticated, redirecting to login');
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 

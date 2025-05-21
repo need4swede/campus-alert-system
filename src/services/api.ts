@@ -173,7 +173,9 @@ export const apiService = {
 
             // If user doesn't exist, create a new one
             console.log('Creating new user from Microsoft data:', msUserData);
-            return await apiService.createUser(msUserData);
+            const newUser = await apiService.createUser(msUserData);
+            console.log('New user created:', newUser);
+            return newUser;
         } catch (error) {
             console.error('Error in getOrCreateUser:', error);
             throw error;

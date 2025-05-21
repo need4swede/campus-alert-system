@@ -13,6 +13,9 @@ const OAuthHandler = ({ children }: { children: React.ReactNode }) => {
     const [success, setSuccess] = useState(false);
 
     useEffect(() => {
+        console.log('OAuthHandler mounted, checking for OAuth callback parameters');
+        console.log('Current location:', location.pathname, location.search);
+
         // Check if we have OAuth callback parameters in the URL
         const searchParams = new URLSearchParams(location.search);
         const code = searchParams.get('code');
@@ -24,6 +27,9 @@ const OAuthHandler = ({ children }: { children: React.ReactNode }) => {
                 code: code ? `${code.substring(0, 10)}...` : null,
                 state
             });
+
+            // Clear the URL parameters immediately to prevent re-processing on page refresh
+            window.history.replaceState({}, document.title, '/');
 
             setLoading(true);
 
@@ -43,7 +49,8 @@ const OAuthHandler = ({ children }: { children: React.ReactNode }) => {
                     // Show toast notification
                     toast.success(`Welcome, ${user.name}! Your account has been created/updated.`);
 
-                    // Clear the URL parameters
+                    // Clear the URL parameters and redirect to home
+                    console.log('OAuth successful, redirecting to home page');
                     navigate('/', { replace: true });
                 } catch (err) {
                     console.error('Authentication callback error:', err);

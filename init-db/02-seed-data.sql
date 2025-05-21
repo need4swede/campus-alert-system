@@ -32,9 +32,9 @@ INSERT INTO users (
 ) VALUES (
   '00000000-0000-0000-0000-000000000001',
   '00000000-0000-0000-0000-000000000001',
-  'Admin User',
+  'Super Admin User',
   'admin@example.edu',
-  'admin',
+  'super-admin',
   'https://example.edu/avatar.png'
 );
 

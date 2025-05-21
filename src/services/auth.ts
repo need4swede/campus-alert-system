@@ -325,6 +325,7 @@ const msOAuth: AuthService = {
 
         // Clear the saved state
         localStorage.removeItem('oauth_state');
+        console.log('OAuth state verified, proceeding with token exchange');
 
         try {
             // Exchange the code for a token
@@ -343,6 +344,12 @@ const msOAuth: AuthService = {
 
             // Save the user to local storage
             localStorage.setItem('user', JSON.stringify(user));
+            console.log('User saved to localStorage:', user);
+
+            // Force a page reload to ensure the auth context picks up the new user
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 500);
 
             return user;
         } catch (error) {
